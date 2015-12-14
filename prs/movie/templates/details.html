@@ -1,0 +1,76 @@
+{% extends "master.html" %}
+{% block title %}{{movie.title}} details{% endblock title %}
+{% block main %}
+    <script>
+        function getRecs() {
+          
+          $.getJSON('/rec/recs/{{ movie.id }}', function(result) {
+            
+            result.forEach(function(element, index, array) {
+              addRow(index +1, '<a ' + 
+                               'onclick=\'PostRecClicked(\"' 
+                               + element.target + '\", \"rec:association\")\'' 
+                               //+ "href='/movie/"+ element.target 
+                               + ">" 
+                               + element.title + "</a>");
+            });
+          })
+      };
+
+        function addRow(no, movie) {
+          
+            var table = document.getElementById("recsTable");
+            
+            var rowCount = table.rows.length;
+            var row = table.insertRow(rowCount);
+
+            row.insertCell(0).innerHTML= no + "     " + movie;
+        }
+    </script>
+
+  {% if movie %} 
+    <div class="left">
+      <div class="tumbnail" 
+           data-html="true" 
+           data-contentid ="{{movie.id}}" 
+           data-userid = "{{user_id}}">
+        <h1>{{movie.title}}</h1>
+        
+          <img  class="movie" src="{{movie.rtpictureurl.strip}}" />
+        <br/>
+        <div class="caption" id="details">
+        </div>
+        <ul>
+          <li>
+            <a href="http://www.imdb.com/title/tt0{{movie.imdbid}}/" >Details on IMDB</a></li>
+          <li>
+        <a onclick="postEvidence('{{user_id}}', '{{movie.id}}', '{{sessionId}}','buy')" id="buy" href="http://www.amazon.co.uk/s/ref=nb_sb_noss_1?url=search-alias%3Daps&field-keywords={{movie.title}}">
+          buy</a></li>
+        </ul>
+        
+      </div>
+    </div>
+
+    <div class="Right">
+      <h3>Frequently seen in the same basket</h3>
+        <table id="recsTable">
+        </table>
+        <script type="text/javascript">
+            getRecs();
+        </script>
+    </div>
+
+
+  {% else %}
+            <p>No movies available.</p>
+  {% endif %}
+  
+  <div style="text-align: center">Filmography links and data courtesy of
+  <a href="http://www.imdb.com/">IMDb</a>.</div>
+  <script type="text/javascript">
+        $.getJSON("http://www.omdbapi.com/?r=json&t={{movie.title}}", function(result){
+            $('#details').html(result.Plot);
+        });
+   </script>
+
+{% endblock main %}

@@ -1,0 +1,44 @@
+#header {
+    background-color:black;
+    color:white;
+    text-align:center;
+    padding:5px;
+}
+#nav {
+    line-height:30px;
+    background-color:#eeeeee;
+    height:550px;
+    width:100px;
+    float:left;
+    padding:5px;        
+}
+#section {
+    width:900px;
+    float:left;
+    padding:10px;    
+}
+#footer {
+    background-color:black;
+    color:white;
+    clear:both;
+    text-align:center;
+   padding:5px;
+} 
+.movie {
+  width: 160px;
+  height: 240px;
+}
+.td_movie {
+  width: 155px;
+  height: 235px;
+  margin: 5px;
+  border: 1px solid #ffffff;  
+}
+.left{
+  float: left;
+  width: 300px;
+}
+.right {
+  float: right;
+  margin-right: 2px;
+}

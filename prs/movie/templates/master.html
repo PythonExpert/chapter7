@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+   <title>{% block title %}{% endblock %}</title>
+   {% load staticfiles %}
+   <!-- Bootstrap -->
+   <link rel="stylesheet" type="text/css" href="{% static "css/styles.css" %}"/>
+   <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+   <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css" rel="stylesheet">
+   <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+   <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+  <script src="{% static "js/evidenceLogger.js" %}"></script>
+   <script>
+      $(document).ready(function(){
+        $('[data-toggle="popover"]').popover();
+
+        $('.movie').on('show.bs.popover', function () {         
+                var userid;
+                var contentid;
+                sessionid ='{{ sessionid }}';      
+                userid = '{{userid}}';      
+                contentid = $(this).attr("data-contentid");
+                postEvidence(userid, contentid, sessionid,"details");
+              });
+      });
+       function PostGenreEvent(a) {
+        postEvidence('{{user_id}}', $(a).data("contentid"), '{{ sessionid }}', 'genre');
+      }      
+      function PostMoreDetailsEvent(a) {
+        postEvidence('{{user_id}}', $(a).data("contentid"), '{{ sessionid }}', 'moredetails');
+      };
+
+      function PostEvent(a, eventType) {
+        postEvidence('{{user_id}}', $(a).data("contentid"), '{{ sessionid }}', eventType);
+      };
+
+      function PostSaveForLaterEvidence(a) {
+        postEvidence('{{user_id}}', $(a).data("contentid"), '{{ sessionid }}', 'SaveForLater');
+      };
+      function PostRecClicked(content_id,rec_type) {
+        postEvidence('{{user_id}}', content_id, '{{ sessionid }}', rec_type);
+      };
+
+
+   </script>
+ </head>
+ <body>
+  {% block header %}
+   <div id="header">
+     <h1>Movie GEEKS</h1>
+   </div>
+  {% endblock header %}
+   <div id="nav">{% block section%}{% endblock section%}</div>
+   <div id="section">{% block main %}{% endblock %}</div>
+ </body>
+</html>

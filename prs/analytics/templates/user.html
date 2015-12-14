@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<head>
+<style>
+header {
+    background-color:black;
+    color:white;
+    text-align:center;
+    padding:5px;
+}
+result {
+    text-align: bottom;
+    font-size: 40px; 
+    font-style: bold;
+    float: bottom;
+}
+navigation {
+    line-height:30px;
+    background-color:#eeeeee;
+    height:300px;
+    width:100px;
+    float:left;
+    padding:5px; 
+}
+kpi {
+    background-color: #aaaaaa;
+    width: 100px;
+    float:left;
+    padding:10px;
+    height: 100px;
+    margin: 10px; 
+}
+.desc {
+    height: 40px;
+}
+graph {
+    background-color: #FFFFFA;
+    float: left;
+    width: 220px;
+    padding:10px;
+    height: 220px;
+    margin: 5px;  
+}
+list {
+    background-color: #EEEEEE;
+    float:left;
+    width: 250px;
+    padding:10px;
+    height: 200px;
+    margin: 5px; 
+}
+section {
+    width:100%;
+    float: left;
+    padding:0px; 
+}
+footer {
+    background-color:black;
+    color:white;
+    clear:both;
+    text-align:center;
+    padding:5px; 
+}
+</style>
+</head>
+<body style="  font: 10px sans-serif;">
+<script src="http://d3js.org/d3.v3.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script src="http://dimplejs.org/dist/dimple.v2.0.0.min.js"></script>
+<script>
+var margin = {top: 20, right: 0, bottom: 30, left: 50},
+    width = 300 - margin.left - margin.right,
+    height = 300 - margin.top - margin.bottom,
+    maxHeight = height - 30,
+    padding = 5;
+
+function getTopContent() {
+  $.getJSON('api/top_content', function(result) {
+    var ul = document.getElementById("top_content");
+
+    result.forEach(function(element, index, array) {
+      var li = document.createElement("li");
+      li.appendChild(document.createTextNode(element.title + "("  + element.sold + ")"));
+      li.setAttribute("id",element.content_id);
+      ul.appendChild(li);  
+    });
+  })
+
+}
+function drawChart(id, endpoint) {
+
+  d3.json("api/"+ endpoint, function(error, eventData) {
+   var canvas = d3.select(id)
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height)
+            .append('g')            
+            .attr("class", 'chart');
+
+    
+
+    var myChart = new dimple.chart(canvas, eventData);
+    var x = myChart.addCategoryAxis("x", ["event","conversion"] );
+    myChart.addMeasureAxis("y", "count_items" );
+    myChart.addSeries("conversion", dimple.plot.bar);
+    myChart.addLegend(110, 30, 110, 20, "right"); 
+    myChart.setBounds(30, 30, 180, 130);
+    myChart.draw();
+
+
+    canvas.append("text")
+          .attr("x", myChart._xPixels() + myChart._widthPixels()/2 -110)
+          .attr("y", myChart._yPixels() - 20)
+          .text("Events in sessions with a buy and without");
+  });
+}
+
+function update_statistics() {
+  var today = new Date().toJSON().slice(0,10);
+  $.getJSON('api/get_statistics?date=' + today, function(result) {
+    document.getElementById("items_sold").textContent = result.items_sold;
+    document.getElementById("conversions").textContent = result.conversions + "%";
+    document.getElementById("visitors_today").textContent = result.visitors;  
+    document.getElementById("sessions_today").textContent = result.sessions;  
+
+  })
+
+}
+</script>
+<header>
+<h1>MovieGeek User view:</h1>
+</header>
+<section>
+<kpi>
+  <div class="desc">Number of visits this month</div>
+  <result id="visits_today">0</result>
+</kpi>
+<kpi>
+  <div class="desc">Conversion percentage</div>
+  <result id="conversions">0%</result>
+</kpi>
+<kpi>
+  <div class="desc">Items bought this month</div>
+  <result id="items_bought">0</result>
+</kpi>
+<kpi>
+  <div class="desc">Number of sessions this month</div>
+  <result id="sessions_today">0</result>
+</kpi>
+</section>
+<hr/>
+<section>
+<graph id="p1">
+</graph>
+
+<graph id="p2">
+</graph>
+</section>
+<section>
+<list>
+<p>Top 10 content<p>
+<ul id="top_content">
+
+</ul>
+
+</list>
+<list>
+<p>latest content<p>
+<ul>
+  <li></li>
+  <li></li>
+  <li></li>
+</ul>
+
+</list>
+
+</section>
+<script type="text/javascript">
+update_statistics();
+drawChart("#p1", "events_on_conversions");
+getTopContent();
+//attachHistogram("#p2", "events_on_conversions");
+</script>
+</body>
+</html>

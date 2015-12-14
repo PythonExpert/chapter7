@@ -1,0 +1,106 @@
+{% extends "master.html" %}
+{% block main %}
+    <script>
+        function getTopContent() {
+          
+          $.getJSON('rec/chart', function(result) {
+            var ul = document.getElementById("top_content");
+
+            result.forEach(function(element, index, array) {
+              addRow(index +1, '<a ' + 
+                               'onclick=\'PostRecClicked(\"' 
+                               + element.content_id + '\", \"rec:chart\")\''
+                              + "href='/movie/"+ element.content_id + "'>"
+                              + element.title + "</a>");
+            });
+          })
+      };
+
+        function addRow(no, movie) {
+          
+            var table = document.getElementById("chartTable");
+            
+            var rowCount = table.rows.length;
+            var row = table.insertRow(rowCount);
+
+            row.insertCell(0).innerHTML= no + "     " + movie;
+        }
+    </script>
+   {% if movies %}
+    <div class="left">
+     <table>
+        <tr>
+            {% for movie in movies %}
+                <td class="td_movie" 
+                    data-movie-item="{{movie.id}}">
+                    <img class="movie" 
+                        tabindex="0" 
+                        role="button" 
+                        data-html="true" 
+                        data-toggle="popover" 
+                        data-trigger="focus" 
+                        title="{{ movie.title}}" 
+                        data-contentid="{{movie.id}}" 
+                        data-content="
+                            Year: {{movie.year}} 
+                            <br/>
+                            Rotten Tomate rating: {{ movie.rtallcriticsrating }} 
+                            <br /> 
+                            <a onclick='PostSaveForLaterEvidence(this)' 
+                               href='#' 
+                               data-html='true' 
+                               data-contentid='{{movie.id}}'>save for later</a> 
+                            <br />
+                            <a href='/movie/{{movie.id}}' 
+                            data-html='true' 
+                            data-contentid='{{movie.id}}'' onclick='PostMoreDetailsEvent(this)'
+                            >more details</a>" 
+                    src="{{movie.rtpictureurl.strip}}" />
+                </td>
+                {% if forloop.counter|divisibleby:4%}
+                    </tr><tr>
+                {% endif  %}
+            {% endfor %}
+        </table>
+    <div class="pagination">
+        <span class="step-links">
+            {% if movies.has_previous %}
+            <a href="{{ url }}??page={{ movies.previous_page_number }}" >previous</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ movies.number }} of {{ movies.paginator.num_pages }}.
+            </span>
+
+            {% if movies.has_next %}
+            <a href="{{ url }}?page={{ movies.next_page_number }}">next</a>
+            {% endif %}
+        </span>
+    </div>
+    <p>Number of movies found: {{number_of_movies}}</p>
+</div>
+<div class="right">
+    <h2>popular content</h2>
+    <table id="chartTable">
+    </table>
+    <script type="text/javascript">
+        getTopContent();
+    </script>
+</div>
+        {% else %}
+            <p>No movies available.</p>
+    {% endif %}
+
+{% endblock main %}
+
+{% block section%}
+{% if not genres %}
+        No genres found
+{% else %}
+  {% for genre in genres %}
+    <a onclick='PostGenreEvidence(this)' 
+    href="/genre/{{genre.genre.strip}}?sessionid={{sessionid}}&userid={{userid}}">{{genre.genre}}</a><br />
+  {% endfor %}
+{% endif %}
+{% endblock section%}
+

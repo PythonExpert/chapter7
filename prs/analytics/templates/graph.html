@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<body style="  font: 10px sans-serif;">
+<script src="http://d3js.org/d3.v3.js"></script>
+<h1>Event Count visualization</h1>
+<p id="p1">
+<script>
+var margin = {top: 20, right: 20, bottom: 30, left: 50},
+    width = 500 - margin.left - margin.right,
+    height = 300 - margin.top - margin.bottom,
+    maxHeight = height - 30
+    padding = 5;
+function column_max(array, field) {
+  // Calculate total numer of events.
+  return Math.max.apply(Math,
+                           array.map(
+                              function(o){
+                                return o[field];
+                              }));
+}
+function colorPicker(v) {  return "rgb(" + v +", 0, 0)"; }
+
+
+function attachHistogram(id, endpoint) {
+
+  var canvas = d3.select(id)
+            .append("svg")
+            .attr("width", width)
+            .attr("height", height)
+
+  d3.json("api/"+ endpoint, function(error, eventData) {
+    
+    // Calculate total numer of events.
+    var max = column_max(eventData, "count_items");
+
+    canvas.selectAll("rect")
+       .data(eventData)
+       .enter()
+       .append("rect")
+       .attr( { x: function(d, i) { return (i * (width / eventData.length));},
+                y: function(d, i) { return height - d.count_items/max * maxHeight;},
+                width : width / eventData.length - padding,
+                height: function(d, i) { return d.count_items/max * maxHeight; },
+                fill  : function(d) { return colorPicker(d.count_items);}
+              });
+
+    canvas.selectAll("text")
+       .data(eventData)
+       .enter()
+       .append("text")
+       .text(function (d) { 
+        return d.event + "(" + d.count_items + ")";})
+       .attr({
+          "text-anchor": "middle",
+          x: function(d, i) { return i * (width / eventData.length) + (width / eventData.length - padding)/2 },
+          y: function(d) { return height - (d.count_items / max  * maxHeight + 14)},
+          "font-family" : "sans-serif",
+          "fill": "#000000"
+       });
+
+    var yScale = d3.scale.linear()
+                   .domain([0, column_max(eventData, "count_items")])
+                   .range([height-padding, padding])
+    //Define Y axis
+    var yAxis = d3.svg.axis()
+                  .scale(yScale)
+                  .orient("left")
+                  .ticks(5);
+
+    canvas.append("g")
+      .attr("class", "axis")
+      .attr("transform", "translate(" + padding + ",0)")
+      .call(yAxis);
+
+  });
+};
+
+attachHistogram("#p1", "event_count");
+
+</script>
+</p>
+<h1>Event Count from sessions where a buy has occured visualization</h1>
+<p id="p2">
+<script>
+attachHistogram("#p2", "events_on_conversions");
+</script>
+</p>
+</body>
+</html>
